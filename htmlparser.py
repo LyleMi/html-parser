@@ -17,7 +17,6 @@ class HTML(object):
         start = 0
         end = 0
         tree = {}
-        isOpen = False
         for tag in cls.tagRe.finditer(htmlString):
             if end >= tag.end():
                 continue
@@ -29,6 +28,8 @@ class HTML(object):
                     return tree
                 return tree, start, end
             tagName = string[1:].split()[0].strip(">")
+            if tagName.lower() == "!doctype":
+                continue
             tagAttr = cls.parseTag(string)
             if "</%s>" % tagName in htmlString:
                 if tagName == "script":
@@ -40,7 +41,7 @@ class HTML(object):
                 else:
                     tagAttr[tagName]["content"] = htmlString[end:end+ret[1]]
                 end += ret[2]
-            tree[](tagAttr)
+            tree[tagName] = tagAttr[tagName]
         return tree
 
     @classmethod
@@ -65,5 +66,5 @@ class HTML(object):
 
 if __name__ == '__main__':
     from pprint import pprint
-    with open("test\sample0.html", "rb") as fh:
+    with open("test\\sample0.html", "rb") as fh:
         pprint(HTML.parse(fh.read()))
